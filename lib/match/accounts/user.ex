@@ -14,7 +14,7 @@ defmodule Match.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:username, :password, :deposit, :role])
-    |> validate_required([:username, :password, :deposit, :role])
+    |> cast(attrs, [:username, :password, :role])
+    |> validate_required([:username, :password, :role])
   end
 end

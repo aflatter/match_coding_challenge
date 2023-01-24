@@ -13,3 +13,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 ## Notes
 
 - Passwords are not encrypted in the users table. Not a good practice obviously.
+- There's no nice error message when creating an user and the username's already taken.
