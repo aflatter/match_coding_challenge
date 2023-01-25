@@ -61,20 +61,14 @@ defmodule Match.Accounts.UserToken do
   end
 
   @doc """
-  Builds a token and its hash to be delivered to the user's email.
+  Builds a token and its hash to be delivered to the user.
 
-  The non-hashed token is sent to the user email while the
-  hashed part is stored in the database. The original token cannot be reconstructed,
-  which means anyone with read-only access to the database cannot directly use
-  the token in the application to gain access. Furthermore, if the user changes
-  their email in the system, the tokens sent to the previous email are no longer
-  valid.
-
-  Users can easily adapt the existing code to provide other types of delivery methods,
-  for example, by phone numbers.
+  The non-hashed token is sent to the user while the hashed part is stored in the database.
+  The original token cannot be reconstructed, which means anyone with read-only access to the
+  database cannot directly use the token in the application to gain access.
   """
-  def build_email_token(user, context) do
-    build_hashed_token(user, context, user.email)
+  def build_api_token(user, context) do
+    build_hashed_token(user, context)
   end
 
   defp build_hashed_token(user, context, sent_to) do
@@ -85,7 +79,6 @@ defmodule Match.Accounts.UserToken do
      %UserToken{
        token: hashed_token,
        context: context,
-       sent_to: sent_to,
        user_id: user.id
      }}
   end
@@ -95,23 +88,16 @@ defmodule Match.Accounts.UserToken do
 
   The query returns the user found by the token, if any.
 
-  This is used to validate requests to change the user
-  email. It is different from `verify_email_token_query/2` precisely because
-  `verify_email_token_query/2` validates the email has not changed, which is
-  the starting point by this function.
-
   The given token is valid if it matches its hashed counterpart in the
-  database and if it has not expired (after @change_email_validity_in_days).
-  The context must always start with "change:".
+  database and if it has not expired.
   """
-  def verify_change_email_token_query(token, "change:" <> _ = context) do
+  def verify_api_token_query(token) do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
 
         query =
-          from token in token_and_context_query(hashed_token, context),
-            where: token.inserted_at > ago(5, "day")
+          from token in token_and_context_query(hashed_token, "api")
 
         {:ok, query}
 
