@@ -8,13 +8,13 @@ defmodule MatchWeb.UserControllerTest do
   @create_attrs %{
     deposit: 42,
     password: "some password",
-    role: "some role",
+    role: "seller",
     username: "some username"
   }
   @update_attrs %{
     deposit: 43,
     password: "some updated password",
-    role: "some updated role",
+    role: "seller",
     username: "some updated username"
   }
   @invalid_attrs %{deposit: nil, password: nil, role: nil, username: nil}
@@ -41,7 +41,7 @@ defmodule MatchWeb.UserControllerTest do
                "id" => ^id,
                "deposit" => 42,
                "password" => "some password",
-               "role" => "some role",
+               "role" => "seller",
                "username" => "some username"
              } = json_response(conn, 200)["data"]
     end
@@ -53,7 +53,7 @@ defmodule MatchWeb.UserControllerTest do
   end
 
   describe "update user" do
-    setup [:create_user]
+    setup [:register_user]
 
     test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
       conn = put(conn, ~p"/api/users/#{user}", user: @update_attrs)
@@ -77,7 +77,7 @@ defmodule MatchWeb.UserControllerTest do
   end
 
   describe "delete user" do
-    setup [:create_user]
+    setup [:register_user]
 
     test "deletes chosen user", %{conn: conn, user: user} do
       conn = delete(conn, ~p"/api/users/#{user}")
@@ -89,7 +89,7 @@ defmodule MatchWeb.UserControllerTest do
     end
   end
 
-  defp create_user(_) do
+  defp register_user(_) do
     user = user_fixture()
     %{user: user}
   end

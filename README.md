@@ -22,3 +22,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 - [ ] Implement `/deposit` endpoint so users with a `buyer` role can deposit only 5, 10, 20, 50 and 100 cent coins into their vending machine account
 - [ ] Implement `/buy` endpoint (accepts productId, amount of products) so users with a “buyer” role can buy products with the money they’ve deposited. API should return total they’ve spent, products they’ve purchased and their change if there’s any (in an array of 5, 10, 20, 50 and 100 cent coins)
 - [ ] Implement `/reset` endpoint so users with a “buyer” role can reset their deposit back to 0
+
+
+
+|> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, :all))

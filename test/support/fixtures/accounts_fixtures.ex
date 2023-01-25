@@ -1,23 +1,28 @@
 defmodule Match.AccountsFixtures do
-  @moduledoc """
-  This module defines test helpers for creating
-  entities via the `Match.Accounts` context.
-  """
+  def unique_user_username, do: "user#{System.unique_integer()}"
+  def valid_user_password, do: "hello world!"
 
-  @doc """
-  Generate a user.
-  """
+  def valid_user_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      deposit: 42,
+      password: valid_user_password(),
+      role: "buyer",
+      username: unique_user_username()
+    })
+  end
+
   def user_fixture(attrs \\ %{}) do
     {:ok, user} =
       attrs
-      |> Enum.into(%{
-        deposit: 42,
-        password: "some password",
-        role: "some role",
-        username: "some username"
-      })
-      |> Match.Accounts.create_user()
+      |> valid_user_attributes()
+      |> Match.Accounts.register_user()
 
     user
+  end
+
+  def extract_user_token(fun) do
+    {:ok, captured_username} = fun.(&"[TOKEN]#{&1}[TOKEN]")
+    [_, token | _] = String.split(captured_username.text_body, "[TOKEN]")
+    token
   end
 end

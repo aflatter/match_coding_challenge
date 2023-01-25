@@ -3,7 +3,7 @@ defmodule Match.Repo.Migrations.CreateUsers do
 
   def change do
     create table(:users) do
-      add :username, :string, null: false
+      add :username, :string, collate: :nocase, null: false
       add :password, :string, null: false
       add :deposit, :integer, default: 0
       add :role, :string, null: false
