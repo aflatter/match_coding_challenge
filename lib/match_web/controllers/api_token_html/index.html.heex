@@ -1,0 +1,24 @@
+<h1>Listing API tokens</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>inserted at</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for api_token <- @api_tokens do %>
+      <tr>
+        <td><% api_token.id %></td>
+        <td><% api_token.inserted_at %></td>
+        <td></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<span>
+  <.link href={~p"/api_tokens"} method="post">New API token</.link>
+</span>

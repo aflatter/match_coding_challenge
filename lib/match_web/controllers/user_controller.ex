@@ -27,7 +27,8 @@ defmodule MatchWeb.UserController do
 
   def update(conn, %{"id" => id, "user" => user_params}) do
     user = Accounts.get_user!(id)
-    password = "bla" # FIXME
+    # FIXME
+    password = "bla"
 
     with {:ok, %User{} = user} <- Accounts.update_user_username(user, password, user_params) do
       render(conn, :show, user: user)

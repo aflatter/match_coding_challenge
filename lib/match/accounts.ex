@@ -211,6 +211,17 @@ defmodule Match.Accounts do
     token
   end
 
+  def generate_api_token(user) do
+    {token, user_token} = UserToken.build_api_token(user)
+    Repo.insert!(user_token)
+    token
+  end
+
+  def get_user_by_api_token(token) do
+    {:ok, query} = UserToken.verify_api_token_query(token)
+    Repo.one(query)
+  end
+
   @doc """
   Gets the user with the given signed token.
   """
@@ -225,5 +236,10 @@ defmodule Match.Accounts do
   def delete_user_session_token(token) do
     Repo.delete_all(UserToken.token_and_context_query(token, "session"))
     :ok
+  end
+
+  def list_api_tokens(user_id) do
+    # FIXME
+    Repo.all(UserToken)
   end
 end

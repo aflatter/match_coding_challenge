@@ -1,6 +1,7 @@
 defmodule MatchWeb.Router do
   use MatchWeb, :router
 
+  import MatchWeb.ApiAuth
   import MatchWeb.UserAuth
 
   pipeline :browser do
@@ -15,6 +16,7 @@ defmodule MatchWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_current_user_by_api_token
   end
 
   scope "/", MatchWeb do
@@ -23,12 +25,19 @@ defmodule MatchWeb.Router do
     get "/", PageController, :home
   end
 
-  # Other scopes may use custom stacks.
+  # API routes that require auth.
   scope "/api", MatchWeb do
-    pipe_through :api
+    pipe_through [:api, :require_authenticated_token]
 
-    resources "/users", UserController, except: [:new, :edit]
+    resources "/users", UserController, except: [:create, :new, :edit]
     resources "/products", ProductController, except: [:new, :edit]
+  end
+
+  # API routes that do NOT require authentication.
+  scope "/api", MatchWeb do
+    pipe_through [:api]
+
+    resources "/users", UserController, only: [:create]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
@@ -62,6 +71,7 @@ defmodule MatchWeb.Router do
   scope "/", MatchWeb do
     pipe_through [:browser, :require_authenticated_user]
 
+    resources "/api_tokens", ApiTokenController, only: [:create, :index]
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
   end

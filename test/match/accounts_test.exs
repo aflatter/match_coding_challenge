@@ -94,18 +94,34 @@ defmodule Match.AccountsTest do
 
     test "validates maximum values for username and password for security" do
       too_long = String.duplicate("db", 100)
-      {:error, changeset} = Accounts.register_user(%{username: too_long, password: too_long, role: "buyer"})
+
+      {:error, changeset} =
+        Accounts.register_user(%{username: too_long, password: too_long, role: "buyer"})
+
       assert "should be at most 32 character(s)" in errors_on(changeset).username
       assert "should be at most 72 character(s)" in errors_on(changeset).password
     end
 
     test "validates username uniqueness" do
       %{username: username} = user_fixture()
-      {:error, changeset} = Accounts.register_user(%{username: username, password: valid_user_password(), role: "buyer"})
+
+      {:error, changeset} =
+        Accounts.register_user(%{
+          username: username,
+          password: valid_user_password(),
+          role: "buyer"
+        })
+
       assert "has already been taken" in errors_on(changeset).username
 
       # Now try with the upper cased username too, to check that username case is ignored.
-      {:error, changeset} = Accounts.register_user(%{username: String.upcase(username), password: valid_user_password(), role: "buyer"})
+      {:error, changeset} =
+        Accounts.register_user(%{
+          username: String.upcase(username),
+          password: valid_user_password(),
+          role: "buyer"
+        })
+
       assert "has already been taken" in errors_on(changeset).username
     end
 

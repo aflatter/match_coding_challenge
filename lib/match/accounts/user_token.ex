@@ -67,8 +67,8 @@ defmodule Match.Accounts.UserToken do
   The original token cannot be reconstructed, which means anyone with read-only access to the
   database cannot directly use the token in the application to gain access.
   """
-  def build_api_token(user, context) do
-    build_hashed_token(user, context)
+  def build_api_token(user) do
+    build_hashed_token(user, "api", nil)
   end
 
   defp build_hashed_token(user, context, sent_to) do
@@ -96,8 +96,7 @@ defmodule Match.Accounts.UserToken do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
 
-        query =
-          from token in token_and_context_query(hashed_token, "api")
+        query = from(token in token_and_context_query(hashed_token, "api"))
 
         {:ok, query}
 
