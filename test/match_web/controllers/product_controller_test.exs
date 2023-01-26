@@ -17,20 +17,28 @@ defmodule MatchWeb.ProductControllerTest do
   }
   @invalid_attrs %{amount_available: nil, cost: nil, product_name: nil}
 
-  setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
-  end
+  setup :register_and_log_in_user
 
   describe "index" do
-    test "lists all products", %{conn: conn} do
-      conn = get(conn, ~p"/api/products")
+    test "denies access if no token is given", %{conn: conn} do
+      conn = conn |> get(~p"/api/products")
+      assert json_response(conn, 401)
+    end
+
+    test "lists all products", %{conn: conn, user: user} do
+      conn = conn |> set_api_token(user) |> get(~p"/api/products")
       assert json_response(conn, 200)["data"] == []
     end
   end
 
   describe "create product" do
-    test "renders product when data is valid", %{conn: conn} do
+    test "denies access if no token is given", %{conn: conn} do
       conn = post(conn, ~p"/api/products", product: @create_attrs)
+      assert json_response(conn, 401)
+    end
+
+    test "renders product when data is valid", %{conn: conn, user: user} do
+      conn = conn |> set_api_token(user) |> post(~p"/api/products", product: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, ~p"/api/products/#{id}")
@@ -43,8 +51,8 @@ defmodule MatchWeb.ProductControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, ~p"/api/products", product: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn, user: user} do
+      conn = conn |> set_api_token(user) |> post(~p"/api/products", product: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -52,8 +60,13 @@ defmodule MatchWeb.ProductControllerTest do
   describe "update product" do
     setup [:create_product]
 
-    test "renders product when data is valid", %{conn: conn, product: %Product{id: id} = product} do
+    test "denies access if no token is given", %{conn: conn, product: product} do
       conn = put(conn, ~p"/api/products/#{product}", product: @update_attrs)
+      assert json_response(conn, 401)
+    end
+
+    test "renders product when data is valid", %{conn: conn, product: %Product{id: id} = product, user: user} do
+      conn = conn |> set_api_token(user) |> put(~p"/api/products/#{product}", product: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, ~p"/api/products/#{id}")
@@ -66,8 +79,8 @@ defmodule MatchWeb.ProductControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, product: product} do
-      conn = put(conn, ~p"/api/products/#{product}", product: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn, product: product, user: user} do
+      conn = conn |> set_api_token(user) |> put(~p"/api/products/#{product}", product: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -75,8 +88,13 @@ defmodule MatchWeb.ProductControllerTest do
   describe "delete product" do
     setup [:create_product]
 
-    test "deletes chosen product", %{conn: conn, product: product} do
+    test "denies access if no token is given", %{conn: conn, product: product} do
       conn = delete(conn, ~p"/api/products/#{product}")
+      assert response(conn, 401)
+    end
+
+    test "deletes chosen product", %{conn: conn, product: product, user: user} do
+      conn = conn |> set_api_token(user) |> delete(~p"/api/products/#{product}")
       assert response(conn, 204)
 
       assert_error_sent 404, fn ->

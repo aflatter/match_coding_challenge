@@ -61,4 +61,12 @@ defmodule MatchWeb.ConnCase do
     |> Phoenix.ConnTest.init_test_session(%{})
     |> Plug.Conn.put_session(:user_token, token)
   end
+
+  def set_api_token(conn, user) do
+    token = Match.Accounts.generate_api_token(user)
+
+    conn
+    |> Plug.Conn.put_req_header("accept", "application/json")
+    |> Plug.Conn.put_req_header("authorization", "Bearer #{token}")
+  end
 end

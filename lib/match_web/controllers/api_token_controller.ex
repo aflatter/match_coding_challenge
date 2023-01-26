@@ -12,6 +12,7 @@ defmodule MatchWeb.ApiTokenController do
   def create(conn, _params) do
     user = conn.assigns.current_user
     api_token = Accounts.generate_api_token(user)
+
     conn
     |> put_status(:created)
     |> render(:create, api_token: api_token)
