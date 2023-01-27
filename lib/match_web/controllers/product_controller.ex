@@ -52,7 +52,11 @@ defmodule MatchWeb.ProductController do
     end
   end
 
-  defp authorize(action, user) when action in [:create, :index, :show] do
+  defp authorize(:index, user) do
+    :ok
+  end
+
+  defp authorize(action, user) when action in [:create, :show] do
     if user.role == "seller" do
       :ok
     else

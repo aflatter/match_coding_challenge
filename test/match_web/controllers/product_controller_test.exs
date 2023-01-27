@@ -25,10 +25,10 @@ defmodule MatchWeb.ProductControllerTest do
       assert json_response(conn, 401)
     end
 
-    test "denies access if requesting token belongs to a buyer", %{conn: conn} do
+    test "allows access even if requesting token belongs to a buyer", %{conn: conn} do
       %{conn: conn, user: user} = register_buyer(%{conn: conn})
       conn = conn |> set_api_token(user) |> get(~p"/api/products")
-      assert json_response(conn, 401)
+      assert json_response(conn, 200)["data"] == []
     end
 
     test "lists all products", %{conn: conn, user: user} do
