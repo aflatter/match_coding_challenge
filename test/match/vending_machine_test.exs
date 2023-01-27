@@ -33,7 +33,8 @@ defmodule Match.VendingMachineTest do
     end
 
     test "create_product/1 with invalid data returns error changeset", %{seller: seller} do
-      assert {:error, %Ecto.Changeset{}} = VendingMachine.create_product(seller.id, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} =
+               VendingMachine.create_product(seller.id, @invalid_attrs)
     end
 
     test "update_product/2 with valid data updates the product", %{seller: seller} do

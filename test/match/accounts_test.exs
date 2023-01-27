@@ -164,6 +164,22 @@ defmodule Match.AccountsTest do
     end
   end
 
+  describe "deposit/2" do
+    setup do
+      user = user_fixture()
+      username = unique_user_username()
+
+      %{user: user, username: username}
+    end
+
+    test "updates the user's deposit", %{user: user} do
+      :ok = Accounts.deposit(user, %{amount: 5})
+
+      changed_user = Repo.get!(User, user.id)
+      assert changed_user.deposit == user.deposit + 5
+    end
+  end
+
   describe "update_user_username/3" do
     setup do
       user = user_fixture()

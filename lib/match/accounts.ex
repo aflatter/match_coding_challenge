@@ -6,6 +6,7 @@ defmodule Match.Accounts do
   import Ecto.Query, warn: false
   alias Match.Repo
 
+  alias Match.Accounts.Deposit
   alias Match.Accounts.User
 
   @doc """
@@ -198,6 +199,21 @@ defmodule Match.Accounts do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  @doc """
+  Updates a product.
+  """
+  def deposit(%User{role: "buyer"} = user, attrs) do
+    {:ok, changeset} =
+      %Deposit{}
+      |> Deposit.deposit_changeset(attrs)
+      |> Ecto.Changeset.apply_action(:insert)
+
+    amount = changeset.amount
+    query = from "users", where: [id: ^user.id], update: [inc: [deposit: ^amount]]
+    {1, _} = Repo.update_all(query, [])
+    :ok
   end
 
   ## Session
