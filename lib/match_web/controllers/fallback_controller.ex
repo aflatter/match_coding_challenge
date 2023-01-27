@@ -14,6 +14,14 @@ defmodule MatchWeb.FallbackController do
     |> render(:error, changeset: changeset)
   end
 
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |> put_status(:unauthorized)
+    |> put_view(html: MatchWeb.ErrorHTML, json: MatchWeb.ErrorJSON)
+    |> render(:"401")
+    |> halt()
+  end
+
   # This clause is an example of how to handle resources that cannot be found.
   def call(conn, {:error, :not_found}) do
     conn

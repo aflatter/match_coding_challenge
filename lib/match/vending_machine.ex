@@ -39,33 +39,15 @@ defmodule Match.VendingMachine do
 
   @doc """
   Creates a product.
-
-  ## Examples
-
-      iex> create_product(%{field: value})
-      {:ok, %Product{}}
-
-      iex> create_product(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
-  def create_product(attrs \\ %{}) do
-    %Product{}
+  def create_product(seller_id, attrs \\ %{}) do
+    %Product{seller_id: seller_id}
     |> Product.changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
   Updates a product.
-
-  ## Examples
-
-      iex> update_product(product, %{field: new_value})
-      {:ok, %Product{}}
-
-      iex> update_product(product, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
   def update_product(%Product{} = product, attrs) do
     product

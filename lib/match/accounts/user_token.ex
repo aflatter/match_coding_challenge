@@ -96,7 +96,10 @@ defmodule Match.Accounts.UserToken do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
 
-        query = from(token in token_and_context_query(hashed_token, "api"))
+        query =
+          from token in token_and_context_query(hashed_token, "api"),
+            join: user in assoc(token, :user),
+            select: user
 
         {:ok, query}
 

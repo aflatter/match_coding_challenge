@@ -6,7 +6,7 @@ defmodule Match.Repo.Migrations.CreateProducts do
       add :amount_available, :integer, default: 0, null: false
       add :cost, :integer, null: false
       add :product_name, :string
-      add :seller_id, references(:users, on_delete: :delete_all)
+      add :seller_id, references(:users, on_delete: :delete_all), null: false
 
       timestamps()
     end

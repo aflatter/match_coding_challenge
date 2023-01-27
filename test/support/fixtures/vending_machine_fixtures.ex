@@ -7,15 +7,14 @@ defmodule Match.VendingMachineFixtures do
   @doc """
   Generate a product.
   """
-  def product_fixture(attrs \\ %{}) do
-    {:ok, product} =
-      attrs
-      |> Enum.into(%{
-        amount_available: 42,
-        cost: 42,
-        product_name: "some product_name"
-      })
-      |> Match.VendingMachine.create_product()
+  def product_fixture(seller_id, attrs \\ %{}) do
+    attrs = attrs
+    |> Enum.into(%{
+      amount_available: 42,
+      cost: 42,
+      product_name: "some product_name"
+    })
+    {:ok, product} = Match.VendingMachine.create_product(seller_id, attrs)
 
     product
   end

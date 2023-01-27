@@ -17,11 +17,17 @@ defmodule MatchWeb.ProductControllerTest do
   }
   @invalid_attrs %{amount_available: nil, cost: nil, product_name: nil}
 
-  setup :register_and_log_in_user
+  setup :register_seller
 
   describe "index" do
     test "denies access if no token is given", %{conn: conn} do
       conn = conn |> get(~p"/api/products")
+      assert json_response(conn, 401)
+    end
+
+    test "denies access if requesting token belongs to a buyer", %{conn: conn} do
+      %{conn: conn, user: user} = register_buyer(%{conn: conn})
+      conn = conn |> set_api_token(user) |> get(~p"/api/products")
       assert json_response(conn, 401)
     end
 
@@ -34,6 +40,12 @@ defmodule MatchWeb.ProductControllerTest do
   describe "create product" do
     test "denies access if no token is given", %{conn: conn} do
       conn = post(conn, ~p"/api/products", product: @create_attrs)
+      assert json_response(conn, 401)
+    end
+
+    test "denies access if requesting token belongs to a buyer", %{conn: conn} do
+      %{conn: conn, user: user} = register_buyer(%{conn: conn})
+      conn = conn |> set_api_token(user) |> post(~p"/api/products", product: @create_attrs)
       assert json_response(conn, 401)
     end
 
@@ -65,8 +77,28 @@ defmodule MatchWeb.ProductControllerTest do
       assert json_response(conn, 401)
     end
 
-    test "renders product when data is valid", %{conn: conn, product: %Product{id: id} = product, user: user} do
-      conn = conn |> set_api_token(user) |> put(~p"/api/products/#{product}", product: @update_attrs)
+    test "denies access if requesting token belongs to a different seller", %{
+      conn: conn,
+      product: product
+    } do
+      %{conn: conn, user: another_seller} = register_seller(%{conn: conn})
+
+      conn =
+        conn
+        |> set_api_token(another_seller)
+        |> put(~p"/api/products/#{product}", product: @update_attrs)
+
+      assert json_response(conn, 401)
+    end
+
+    test "renders product when data is valid", %{
+      conn: conn,
+      product: %Product{id: id} = product,
+      user: user
+    } do
+      conn =
+        conn |> set_api_token(user) |> put(~p"/api/products/#{product}", product: @update_attrs)
+
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, ~p"/api/products/#{id}")
@@ -80,7 +112,9 @@ defmodule MatchWeb.ProductControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, product: product, user: user} do
-      conn = conn |> set_api_token(user) |> put(~p"/api/products/#{product}", product: @invalid_attrs)
+      conn =
+        conn |> set_api_token(user) |> put(~p"/api/products/#{product}", product: @invalid_attrs)
+
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -93,6 +127,15 @@ defmodule MatchWeb.ProductControllerTest do
       assert response(conn, 401)
     end
 
+    test "denies access if requesting token belongs to different seller", %{
+      conn: conn,
+      product: product
+    } do
+      %{conn: conn, user: another_seller} = register_seller(%{conn: conn})
+      conn = conn |> set_api_token(another_seller) |> delete(~p"/api/products/#{product}")
+      assert json_response(conn, 401)
+    end
+
     test "deletes chosen product", %{conn: conn, product: product, user: user} do
       conn = conn |> set_api_token(user) |> delete(~p"/api/products/#{product}")
       assert response(conn, 204)
@@ -103,8 +146,8 @@ defmodule MatchWeb.ProductControllerTest do
     end
   end
 
-  defp create_product(_) do
-    product = product_fixture()
+  defp create_product(%{user: user}) do
+    product = product_fixture(user.id)
     %{product: product}
   end
 end

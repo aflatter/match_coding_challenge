@@ -12,7 +12,6 @@ defmodule MatchWeb.ApiAuth do
   """
   def fetch_current_user_by_api_token(conn, _opts) do
     {user_token, conn} = ensure_api_token(conn)
-    IO.inspect(user_token)
     user = user_token && Accounts.get_user_by_api_token(user_token)
     assign(conn, :current_user, user)
   end

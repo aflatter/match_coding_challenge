@@ -6,7 +6,8 @@ defmodule Match.VendingMachine.Product do
     field :amount_available, :integer
     field :cost, :integer
     field :product_name, :string
-    field :seller_id, :id
+
+    belongs_to :seller, Match.Accounts.User
 
     timestamps()
   end

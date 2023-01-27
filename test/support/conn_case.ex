@@ -45,8 +45,18 @@ defmodule MatchWeb.ConnCase do
   test context.
   """
   def register_and_log_in_user(%{conn: conn}) do
-    user = Match.AccountsFixtures.user_fixture()
+    user = Match.AccountsFixtures.user_fixture(%{role: "buyer"})
     %{conn: log_in_user(conn, user), user: user}
+  end
+
+  def register_buyer(%{conn: conn}) do
+    user = Match.AccountsFixtures.user_fixture(%{role: "buyer"})
+    %{conn: conn, user: user}
+  end
+
+  def register_seller(%{conn: conn}) do
+    user = Match.AccountsFixtures.user_fixture(%{role: "seller"})
+    %{conn: conn, user: user}
   end
 
   @doc """
