@@ -83,4 +83,9 @@ defmodule Match.VendingMachine do
   def change_product(%Product{} = product, attrs \\ %{}) do
     Product.changeset(product, attrs)
   end
+
+  def take_inventory(%Product{} = product, amount) do
+    Product.take_changeset(product, %{amount_available: product.amount_available - amount})
+    |> Repo.update()
+  end
 end

@@ -64,6 +64,19 @@ defmodule Match.VendingMachineTest do
       assert %Ecto.Changeset{} = VendingMachine.change_product(product)
     end
 
+    test "take_inventory/2 with valid amount updates and returns the product", %{seller: seller} do
+      product = product_fixture(seller.id, %{amount_available: 2})
+      assert {:ok, updated_product} = VendingMachine.take_inventory(product, 2)
+      assert updated_product.amount_available == 0
+      assert updated_product == VendingMachine.get_product!(product.id)
+    end
+
+    test "take_inventory/2 returns error changeset if inventory is too low", %{seller: seller} do
+      product = product_fixture(seller.id, %{amount_available: 1})
+      assert {:error, %Ecto.Changeset{}} = VendingMachine.take_inventory(product, 2)
+      assert product == VendingMachine.get_product!(product.id)
+    end
+
     defp create_seller(%{}) do
       seller = user_fixture(%{role: "seller"})
       %{seller: seller}

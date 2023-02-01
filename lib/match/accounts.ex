@@ -202,7 +202,7 @@ defmodule Match.Accounts do
   end
 
   @doc """
-  Updates a product.
+  Put balance into the user's account.
   """
   def deposit(%User{role: "buyer"} = user, attrs) do
     {:ok, changeset} =
@@ -211,9 +211,9 @@ defmodule Match.Accounts do
       |> Ecto.Changeset.apply_action(:insert)
 
     amount = changeset.amount
-    query = from "users", where: [id: ^user.id], update: [inc: [deposit: ^amount]]
-    {1, _} = Repo.update_all(query, [])
-    :ok
+    query = from u in User, select: u, where: [id: ^user.id], update: [inc: [deposit: ^amount]]
+    {1, [user]} = Repo.update_all(query, [])
+    {:ok, user}
   end
 
   ## Session
@@ -257,5 +257,10 @@ defmodule Match.Accounts do
   def list_api_tokens(user_id) do
     # FIXME
     Repo.all(UserToken)
+  end
+
+  def withdraw_deposit(%User{} = user, amount) do
+    User.withdrawal_changeset(user, %{deposit: user.deposit - amount})
+    |> Repo.update()
   end
 end

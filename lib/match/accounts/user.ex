@@ -143,4 +143,14 @@ defmodule Match.Accounts.User do
       add_error(changeset, :current_password, "is not valid")
     end
   end
+
+  def withdrawal_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:deposit])
+    |> validate_number(:deposit, greater_than_or_equal_to: 0)
+    |> validate_number(:deposit,
+      less_than_or_equal_to: user.deposit,
+      message: "must be less than the current deposit"
+    )
+  end
 end

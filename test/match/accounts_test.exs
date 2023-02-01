@@ -173,10 +173,10 @@ defmodule Match.AccountsTest do
     end
 
     test "updates the user's deposit", %{user: user} do
-      :ok = Accounts.deposit(user, %{amount: 5})
+      {:ok, updated_user} = Accounts.deposit(user, %{amount: 5})
 
-      changed_user = Repo.get!(User, user.id)
-      assert changed_user.deposit == user.deposit + 5
+      assert updated_user.deposit == user.deposit + 5
+      assert updated_user == Repo.get!(User, user.id)
     end
   end
 
