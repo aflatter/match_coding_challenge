@@ -25,4 +25,11 @@
 
   # https://devenv.sh/processes/
   # processes.ping.exec = "ping example.com";
+
+  services.postgres.enable = true;
+  services.postgres.initialDatabases = [
+    { name = "match_dev"; }
+    { name = "match_test"; }
+  ];
+  services.postgres.initialScript = "CREATE USER postgres SUPERUSER;";
 }

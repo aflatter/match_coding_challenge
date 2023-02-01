@@ -1,7 +1,14 @@
 import Config
 
 # Configure your database
-config :match, Match.Repo, database: "dev.sqlite3"
+config :match, Match.Repo,
+  username: "postgres",
+  password: "",
+  database: "match_dev",
+  hostname: "localhost",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
