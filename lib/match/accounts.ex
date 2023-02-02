@@ -160,6 +160,11 @@ defmodule Match.Accounts do
     end
   end
 
+  def update_user(user, attrs) do
+    changeset = user |> User.update_changeset(attrs)
+    Repo.update(changeset)
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user password.
 

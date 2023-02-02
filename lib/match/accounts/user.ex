@@ -37,10 +37,15 @@ defmodule Match.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:username, :password, :role])
+    |> cast(attrs, [:deposit, :username, :password, :role])
     |> validate_username(opts)
     |> validate_password(opts)
     |> validate_role
+  end
+
+  defp validate_deposit(changeset) do
+    changeset
+    |> validate_number(:deposit, greater_than_or_equal_to: 0)
   end
 
   defp validate_username(changeset, opts) do
@@ -90,6 +95,13 @@ defmodule Match.Accounts.User do
     else
       changeset
     end
+  end
+
+  def update_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:deposit, :username])
+    |> validate_deposit()
+    |> validate_username(validate_username: true)
   end
 
   def username_changeset(user, attrs, opts \\ []) do
@@ -147,7 +159,7 @@ defmodule Match.Accounts.User do
   def withdrawal_changeset(user, attrs) do
     user
     |> cast(attrs, [:deposit])
-    |> validate_number(:deposit, greater_than_or_equal_to: 0)
+    |> validate_deposit()
     |> validate_number(:deposit,
       less_than_or_equal_to: user.deposit,
       message: "must be less than the current deposit"
