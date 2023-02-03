@@ -65,7 +65,7 @@ defmodule MatchWeb.UserSettingsControllerTest do
 
   describe "PUT /users/settings (change username form)" do
     @tag :capture_log
-    test "updates the user username", %{conn: conn, user: user} do
+    test "updates the user username", %{conn: conn} do
       new_username = unique_user_username()
 
       conn =

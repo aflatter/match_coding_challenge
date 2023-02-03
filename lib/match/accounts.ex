@@ -228,6 +228,22 @@ defmodule Match.Accounts do
     end
   end
 
+  @doc """
+  Returns an array of coins that represents the given amount.
+  Note that it's not precise given that the coins can't represent values smaller than 5.
+  """
+  def amount_to_coins(amount) do
+    Enum.reduce(
+      [100, 50, 20, 10, 5],
+      %{remainder: amount, coins: []},
+      fn coin, %{remainder: amount, coins: coins} ->
+        new_remainder = rem(amount, coin)
+        new_coins = List.duplicate(coin, div(amount, coin))
+        %{remainder: new_remainder, coins: coins ++ new_coins}
+      end
+    ).coins
+  end
+
   ## Session
 
   @doc """

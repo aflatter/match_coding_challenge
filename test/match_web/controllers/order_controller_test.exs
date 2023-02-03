@@ -28,7 +28,7 @@ defmodule MatchWeb.OrderControllerTest do
       assert %{"data" => data, "remaining_deposit" => remaining_deposit} =
                json_response(conn, 201)
 
-      assert 90 == remaining_deposit
+      assert [50, 20, 20] == remaining_deposit
       assert %{"amount" => 1, "product_id" => ^product_id, "total_cost" => 10} = data
     end
 

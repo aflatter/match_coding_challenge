@@ -1,6 +1,7 @@
 defmodule MatchWeb.OrderController do
   use MatchWeb, :controller
 
+  alias Match.Accounts
   alias Match.Orders
 
   action_fallback MatchWeb.FallbackController
@@ -12,7 +13,10 @@ defmodule MatchWeb.OrderController do
          {:ok, order, remaining_deposit} <- Orders.complete_order(user, order_params) do
       conn
       |> put_status(:created)
-      |> render(:show, order: order, remaining_deposit: remaining_deposit)
+      |> render(:show,
+        order: order,
+        remaining_deposit: Accounts.amount_to_coins(remaining_deposit)
+      )
     end
   end
 
