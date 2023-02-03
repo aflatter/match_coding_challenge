@@ -29,9 +29,9 @@ defmodule MatchWeb.Router do
   scope "/api", MatchWeb do
     pipe_through [:api, :require_authenticated_token]
 
+    resources "/orders", OrderController, only: [:create]
     resources "/products", ProductController, except: [:new, :edit]
     resources "/users", UserController, except: [:create, :new, :edit]
-
   end
 
   # API routes that do NOT require authentication.

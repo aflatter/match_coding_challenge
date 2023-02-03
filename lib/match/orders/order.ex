@@ -4,11 +4,15 @@ defmodule Match.Orders.Order do
 
   embedded_schema do
     field :amount, :integer
+    field :total_cost, :integer, virtual: true
+
+    belongs_to :product, Match.VendingMachine.Product
   end
 
   def changeset(order, attrs) do
     order
-    |> cast(attrs, [:amount])
-    |> validate_number(:amount, greater_than_or_equal_to: 0)
+    |> cast(attrs, [:amount, :product_id])
+    |> validate_required([:amount, :product_id])
+    |> validate_number(:amount, greater_than: 0)
   end
 end

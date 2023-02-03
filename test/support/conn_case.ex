@@ -50,13 +50,13 @@ defmodule MatchWeb.ConnCase do
   end
 
   def register_buyer(%{conn: conn}) do
-    user = Match.AccountsFixtures.user_fixture(%{role: "buyer"})
-    %{conn: conn, user: user}
+    buyer = Match.AccountsFixtures.user_fixture(%{role: "buyer"})
+    %{conn: conn, buyer: buyer}
   end
 
   def register_seller(%{conn: conn}) do
-    user = Match.AccountsFixtures.user_fixture(%{role: "seller"})
-    %{conn: conn, user: user}
+    seller = Match.AccountsFixtures.user_fixture(%{role: "seller"})
+    %{conn: conn, seller: seller}
   end
 
   @doc """

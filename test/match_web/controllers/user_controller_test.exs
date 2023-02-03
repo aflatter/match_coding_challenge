@@ -31,7 +31,16 @@ defmodule MatchWeb.UserControllerTest do
 
     test "lists all users", %{conn: conn, user: user} do
       conn = conn |> set_api_token(user) |> get(~p"/api/users")
-      assert json_response(conn, 200)["data"] == [%{"deposit" => user.deposit, "id" => user.id, "password" => nil, "role" => user.role, "username" => user.username}]
+
+      assert json_response(conn, 200)["data"] == [
+               %{
+                 "deposit" => user.deposit,
+                 "id" => user.id,
+                 "password" => nil,
+                 "role" => user.role,
+                 "username" => user.username
+               }
+             ]
     end
   end
 
@@ -40,7 +49,8 @@ defmodule MatchWeb.UserControllerTest do
       conn = post(conn, ~p"/api/users", user: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
-      user = Match.Accounts.get_user!(id) # TODO: Would be nice to get an API token without this.
+      # TODO: Would be nice to get an API token without this.
+      user = Match.Accounts.get_user!(id)
       conn = conn |> recycle() |> set_api_token(user) |> get(~p"/api/users/#{id}")
 
       assert %{

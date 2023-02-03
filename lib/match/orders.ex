@@ -12,33 +12,31 @@ defmodule Match.Orders do
   alias Match.Orders.Order
   alias Match.Orders.OrderConfirmation
   alias Match.VendingMachine
-  alias Match.VendingMachine.Product
 
-  def complete_order(%User{} = user, %Product{} = product, attrs \\ %{}) do
+  def complete_order(%User{} = user, attrs \\ %{}) do
     Order.changeset(%Order{}, attrs)
     |> Ecto.Changeset.apply_action(:buy)
     |> case do
       {:ok, order} ->
         amount = order.amount
-        total_cost = amount * product.cost
-        IO.inspect(total_cost)
 
         Multi.new()
-        |> Multi.run(:take_inventory, fn _repo, _changes ->
+        |> Multi.run(:product, fn _repo, _changes ->
+          {:ok, VendingMachine.get_product!(order.product_id)}
+        end)
+        |> Multi.run(:total_cost, fn _repo, changes ->
+          {:ok, amount * changes.product.cost}
+        end)
+        |> Multi.run(:take_inventory, fn _repo, %{product: product} ->
           VendingMachine.take_inventory(product, amount)
         end)
-        |> Multi.run(:withdraw_deposit, fn _repo, _changes ->
+        |> Multi.run(:user, fn _repo, %{total_cost: total_cost} ->
           Accounts.withdraw_deposit(user, total_cost)
         end)
         |> Repo.transaction()
         |> case do
-          {:ok, result} ->
-            {:ok,
-             %OrderConfirmation{
-               total_cost: total_cost,
-               remaining_balance: result.withdraw_deposit.deposit,
-               product: result.take_inventory
-             }}
+          {:ok, %{total_cost: total_cost, user: updated_user}} ->
+            {:ok, %{order | total_cost: total_cost}, updated_user.deposit}
         end
 
       {:error, changeset} ->
