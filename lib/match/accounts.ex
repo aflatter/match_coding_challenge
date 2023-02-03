@@ -210,15 +210,22 @@ defmodule Match.Accounts do
   Put balance into the user's account.
   """
   def deposit(%User{role: "buyer"} = user, attrs) do
-    {:ok, changeset} =
-      %Deposit{}
-      |> Deposit.deposit_changeset(attrs)
-      |> Ecto.Changeset.apply_action(:insert)
+    %Deposit{}
+    |> Deposit.deposit_changeset(attrs)
+    |> Ecto.Changeset.apply_action(:insert)
+    |> case do
+      {:ok, changeset} ->
+        amount = changeset.amount
 
-    amount = changeset.amount
-    query = from u in User, select: u, where: [id: ^user.id], update: [inc: [deposit: ^amount]]
-    {1, [user]} = Repo.update_all(query, [])
-    {:ok, user}
+        query =
+          from u in User, select: u, where: [id: ^user.id], update: [inc: [deposit: ^amount]]
+
+        {1, [user]} = Repo.update_all(query, [])
+        {:ok, user}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   ## Session

@@ -178,6 +178,16 @@ defmodule Match.AccountsTest do
       assert updated_user.deposit == user.deposit + 5
       assert updated_user == Repo.get!(User, user.id)
     end
+
+    test "does not accept an amount of 2", %{user: user} do
+      {:error, changeset} = Accounts.deposit(user, %{amount: 2})
+
+      assert %{
+               amount: ["is invalid"]
+             } = errors_on(changeset)
+
+      assert user == Repo.get!(User, user.id)
+    end
   end
 
   describe "update_user_username/3" do
