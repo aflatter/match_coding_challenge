@@ -4,7 +4,7 @@ defmodule Match.AccountsFixtures do
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
-      deposit: 42,
+      deposit: 0,
       password: valid_user_password(),
       role: "buyer",
       username: unique_user_username()

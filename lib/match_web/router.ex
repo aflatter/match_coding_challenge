@@ -29,6 +29,7 @@ defmodule MatchWeb.Router do
   scope "/api", MatchWeb do
     pipe_through [:api, :require_authenticated_token]
 
+    resources "/deposits", DepositController, only: [:create]
     resources "/orders", OrderController, only: [:create]
     resources "/products", ProductController, except: [:new, :edit]
     resources "/users", UserController, except: [:create, :new, :edit]

@@ -173,17 +173,18 @@ defmodule Match.AccountsTest do
     end
 
     test "updates the user's deposit", %{user: user} do
-      {:ok, updated_user} = Accounts.deposit(user, %{amount: 5})
+      {:ok, deposit} = Accounts.deposit(user, %{coin_value: 5})
 
-      assert updated_user.deposit == user.deposit + 5
-      assert updated_user == Repo.get!(User, user.id)
+      assert deposit.coin_value == 5
+      assert deposit.user.deposit == user.deposit + 5
+      assert deposit.user == Repo.get!(User, user.id)
     end
 
     test "does not accept an amount of 2", %{user: user} do
-      {:error, changeset} = Accounts.deposit(user, %{amount: 2})
+      {:error, changeset} = Accounts.deposit(user, %{coin_value: 2})
 
       assert %{
-               amount: ["is invalid"]
+               coin_value: ["is invalid"]
              } = errors_on(changeset)
 
       assert user == Repo.get!(User, user.id)
