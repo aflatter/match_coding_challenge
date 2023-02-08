@@ -1,27 +1,22 @@
-# Match
+# Match Coding Challenge
 
-To start your Phoenix server:
+This is my take on the [Match](https://mvpmatch.co/) [coding challenge](https://mvpmatch.notion.site/Full-stack-ac8a8b07bee84937968377c840b6fa29).
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+I'm usually not fond of these types of exercises but gave it a go because I was in a mood to build something using Elixir. It also presented an opportunity to play around with `phx.gen.auth` in a scenario where API authentication is required.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+I've explored the idea of modeling deposits and orders as transactions in a double-entry accounting ledger using TigerBeetleDb but unfortunately there's no client for Elixir yet. This keeps bugging me so I might start working on one.
 
 ## Notes
 
-- Passwords are not encrypted in the users table. Not a good practice obviously.
-- There's no nice error message when creating an user and the username's already taken.
+- I ripped out all of the email-related functionality from `phx.gen.auth` and replaced that with usernames as specified by the challenge. This hadhad the nice side-effect of reducing the amount of code.
+- The specs suggest to design a RESTful API and specify RPC-style `/buy` and `/deposit` routes at the same time. I decided to go with REST and implemented `POST /api/orders` and `POST /api/deposits`.
+- As the smallest coin that the vending machine returns is 5, you possibly don't get all your money back: If you put 50 cents in but your product only costs 48, the machine won't be able to give you 2 cents back.
 
-## Todos
+## Open tasks
 
-- [ ] `/api/products`: Only allow `POST`, `PUT` and `DELETE` if the requesting user is a seller and owns the product.
-- [ ] Implement `/deposit` endpoint so users with a `buyer` role can deposit only 5, 10, 20, 50 and 100 cent coins into their vending machine account
-- [ ] Implement `/buy` endpoint (accepts productId, amount of products) so users with a “buyer” role can buy products with the money they’ve deposited. API should return total they’ve spent, products they’ve purchased and their change if there’s any (in an array of 5, 10, 20, 50 and 100 cent coins)
+There's a bunch of open tasks that I didn't get to do yet.
+
+- [ ] Make a postman collection
+- [ ] Create web interface for interaction with the API, design choices are left to you
 - [ ] Implement `/reset` endpoint so users with a “buyer” role can reset their deposit back to 0
-
-
-
-|> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, :all))
+- [ ] Bonus: If somebody is already logged in with the same credentials, the user should be given a message "There is already an active session using your account". In this case the user should be able to terminate all the active sessions on their account via an endpoint i.e. `/logout/all`
