@@ -282,9 +282,8 @@ defmodule Match.Accounts do
     :ok
   end
 
-  def list_api_tokens(user_id) do
-    # FIXME
-    Repo.all(UserToken)
+  def list_api_tokens(%User{} = user) do
+    Repo.all(UserToken.user_and_contexts_query(user, ["api"]))
   end
 
   def withdraw_deposit(%User{} = user, amount) do

@@ -5,7 +5,7 @@ defmodule MatchWeb.ApiTokenController do
 
   def index(conn, _params) do
     user = conn.assigns.current_user
-    api_tokens = Accounts.list_api_tokens(user.id)
+    api_tokens = Accounts.list_api_tokens(user)
     render(conn, :index, api_tokens: api_tokens)
   end
 
