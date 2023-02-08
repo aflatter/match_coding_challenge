@@ -1,24 +1,31 @@
-<h1>Listing API tokens</h1>
+<.header class="pb-4">
+  Listing API tokens
+  <:subtitle>Manage your API tokens here</:subtitle>
+</.header>
 
-<table>
-  <thead>
-    <tr>
-      <th>id</th>
-      <th>inserted at</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for api_token <- @api_tokens do %>
-      <tr>
-        <td><% api_token.id %></td>
-        <td><% api_token.inserted_at %></td>
-        <td></td>
+<%= if length(@api_tokens) > 0 do %>
+  <table class="mb-4 w-full">
+    <thead class="bg-slate-200">
+      <tr class="table-fixed border border-gray-500 border-collapse">
+        <th class="px-2 text-left">id</th>
+        <th class="px-2 text-left">inserted at</th>
+        <th class="px-2 text-left"></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <%= for api_token <- @api_tokens do %>
+        <tr>
+          <td class="px-2 text-left"><%= api_token.id %></td>
+          <td class="px-2 text-left"><%= api_token.inserted_at %></td>
+          <td class="px-2 text-left"></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="mb-4">No tokens yet.</p>
+<% end %>
 
 <span>
-  <.link href={~p"/api_tokens"} method="post">New API token</.link>
+  <.link class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700" href={~p"/api_tokens"} method="post">New API token</.link>
 </span>

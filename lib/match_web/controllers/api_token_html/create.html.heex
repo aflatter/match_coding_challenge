@@ -1,12 +1,14 @@
-<h1>Token created</h1>
+<.header class="pb-4">
+  Token created
+</.header>
 
 <p>
   Your newly created token is:<br />
-  <pre><%= @api_token %></pre>
+  <pre class="bg-slate-200 mb-4 p-2"><%= @api_token %></pre>
 </p>
 
-<p>This is the only time that you can see it, so store it somewhere safe.</p>
+<p class="mb-4">This is the only time that you can see it, so store it somewhere safe.</p>
 
 <span>
-  <.link href={~p"/api_tokens"}>Back</.link>
+  <.link class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700" href={~p"/api_tokens"}>Back</.link>
 </span>
