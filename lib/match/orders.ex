@@ -22,6 +22,7 @@ defmodule Match.Orders do
 
         Multi.new()
         |> Multi.run(:product, fn _repo, _changes ->
+          # TODO: This will fail hard if the product doesn't exist. Validate input properly.
           {:ok, VendingMachine.get_product!(order.product_id)}
         end)
         |> Multi.run(:total_cost, fn _repo, changes ->
@@ -35,6 +36,7 @@ defmodule Match.Orders do
         end)
         |> Repo.transaction()
         |> case do
+          # TODO: Properly handle error if user's balance is too low.
           {:ok, %{total_cost: total_cost, user: updated_user}} ->
             {:ok, %{order | total_cost: total_cost}, updated_user.deposit}
         end

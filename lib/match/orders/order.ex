@@ -14,5 +14,6 @@ defmodule Match.Orders.Order do
     |> cast(attrs, [:amount, :product_id])
     |> validate_required([:amount, :product_id])
     |> validate_number(:amount, greater_than: 0)
+    # TODO: Add `foreign_key_constraint(:product_id)` work.
   end
 end
