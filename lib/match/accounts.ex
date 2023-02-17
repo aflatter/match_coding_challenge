@@ -286,8 +286,23 @@ defmodule Match.Accounts do
     Repo.all(UserToken.user_and_contexts_query(user, ["api"]))
   end
 
-  def withdraw_deposit(%User{} = user, amount) do
-    User.withdrawal_changeset(user, %{deposit: user.deposit - amount})
-    |> Repo.update()
+  def withdraw_deposit(user_id, amount) when amount < 0, do: {:error, :invalid_amount}
+
+  def withdraw_deposit(user_id, amount) do
+    negative_amount = -amount
+    query = from(u in User, where: u.id == ^user_id, select: u)
+
+    try do
+      case Repo.update_all(query, inc: [deposit: negative_amount]) do
+        {1, [updated_user]} -> {:ok, updated_user.deposit}
+        {0, []} -> {:error, :invalid_user_id}
+      end
+    rescue
+      e in Postgrex.Error ->
+        case Ecto.Adapters.Postgres.Connection.to_constraints(e, []) do
+          [] -> raise e
+          [check: "deposit_must_not_be_negative"] -> {:error, :insufficient_deposit}
+        end
+    end
   end
 end

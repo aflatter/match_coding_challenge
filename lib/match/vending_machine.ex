@@ -84,8 +84,21 @@ defmodule Match.VendingMachine do
     Product.changeset(product, attrs)
   end
 
-  def take_inventory(%Product{} = product, amount) do
-    Product.take_changeset(product, %{amount_available: product.amount_available - amount})
-    |> Repo.update()
+  def take_inventory(product_id, amount) do
+    negative_amount = -amount
+    query = from(p in Product, where: p.id == ^product_id, select: p)
+
+    try do
+      case Repo.update_all(query, inc: [amount_available: negative_amount]) do
+        {1, [updated_product]} -> {:ok, amount * updated_product.cost}
+        {0, []} -> {:error, :invalid_product_id}
+      end
+    rescue
+      e in Postgrex.Error ->
+        case Ecto.Adapters.Postgres.Connection.to_constraints(e, []) do
+          [] -> raise e
+          [check: "amount_available_must_not_be_negative"] -> {:error, :insufficient_inventory}
+        end
+    end
   end
 end

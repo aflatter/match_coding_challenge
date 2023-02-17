@@ -66,15 +66,15 @@ defmodule Match.VendingMachineTest do
 
     test "take_inventory/2 with valid amount updates and returns the product", %{seller: seller} do
       product = product_fixture(seller.id, %{amount_available: 2})
-      assert {:ok, updated_product} = VendingMachine.take_inventory(product, 2)
-      assert updated_product.amount_available == 0
-      assert updated_product == VendingMachine.get_product!(product.id)
+      assert {:ok, total_cost} = VendingMachine.take_inventory(product.id, 2)
+      assert total_cost == product.cost * 2
+      assert VendingMachine.get_product!(product.id).amount_available == 0
     end
 
     test "take_inventory/2 returns error changeset if inventory is too low", %{seller: seller} do
       product = product_fixture(seller.id, %{amount_available: 1})
-      assert {:error, %Ecto.Changeset{}} = VendingMachine.take_inventory(product, 2)
-      assert product == VendingMachine.get_product!(product.id)
+      assert {:error, :insufficient_inventory} = VendingMachine.take_inventory(product.id, 2)
+      assert VendingMachine.get_product!(product.id).amount_available == 1
     end
 
     defp create_seller(%{}) do

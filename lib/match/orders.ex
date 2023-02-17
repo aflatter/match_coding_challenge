@@ -10,35 +10,42 @@ defmodule Match.Orders do
   alias Match.Accounts
   alias Match.Accounts.User
   alias Match.Orders.Order
-  alias Match.Orders.OrderConfirmation
   alias Match.VendingMachine
 
   def complete_order(%User{} = user, attrs \\ %{}) do
-    Order.changeset(%Order{}, attrs)
-    |> Ecto.Changeset.apply_action(:buy)
+    changeset = Order.changeset(%Order{}, attrs)
+
+    Ecto.Changeset.apply_action(changeset, :buy)
     |> case do
       {:ok, order} ->
         amount = order.amount
 
         Multi.new()
-        |> Multi.run(:product, fn _repo, _changes ->
-          # TODO: This will fail hard if the product doesn't exist. Validate input properly.
-          {:ok, VendingMachine.get_product!(order.product_id)}
+        |> Multi.run(:take_inventory, fn _repo, _changes ->
+          VendingMachine.take_inventory(order.product_id, amount)
         end)
-        |> Multi.run(:total_cost, fn _repo, changes ->
-          {:ok, amount * changes.product.cost}
-        end)
-        |> Multi.run(:take_inventory, fn _repo, %{product: product} ->
-          VendingMachine.take_inventory(product, amount)
-        end)
-        |> Multi.run(:user, fn _repo, %{total_cost: total_cost} ->
-          Accounts.withdraw_deposit(user, total_cost)
+        |> Multi.run(:withdraw_deposit, fn _repo, %{take_inventory: total_cost} ->
+          Accounts.withdraw_deposit(user.id, total_cost)
         end)
         |> Repo.transaction()
         |> case do
-          # TODO: Properly handle error if user's balance is too low.
-          {:ok, %{total_cost: total_cost, user: updated_user}} ->
-            {:ok, %{order | total_cost: total_cost}, updated_user.deposit}
+          {:ok, %{take_inventory: total_cost, withdraw_deposit: remaining_deposit}} ->
+            {:ok, %{order | total_cost: total_cost}, remaining_deposit}
+
+          {:error, :take_inventory, :invalid_product_id, _changes} ->
+            {:error, Ecto.Changeset.add_error(changeset, :product_id, "is invalid")}
+
+          {:error, :take_inventory, :insufficient_inventory, _changes} ->
+            {:error,
+             Ecto.Changeset.add_error(changeset, :amount, "insufficient inventory available")}
+
+          {:error, :withdraw_deposit, :insufficient_deposit, _changes} ->
+            {:error,
+             Ecto.Changeset.add_error(
+               changeset,
+               :base,
+               "insufficient deposit"
+             )}
         end
 
       {:error, changeset} ->

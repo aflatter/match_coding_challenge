@@ -6,6 +6,7 @@ defmodule Match.Orders.Order do
     field :amount, :integer
     field :total_cost, :integer, virtual: true
 
+    belongs_to :user, Match.Accounts.User
     belongs_to :product, Match.VendingMachine.Product
   end
 
@@ -14,6 +15,5 @@ defmodule Match.Orders.Order do
     |> cast(attrs, [:amount, :product_id])
     |> validate_required([:amount, :product_id])
     |> validate_number(:amount, greater_than: 0)
-    # TODO: Add `foreign_key_constraint(:product_id)` work.
   end
 end

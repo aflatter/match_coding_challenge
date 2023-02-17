@@ -191,6 +191,26 @@ defmodule Match.AccountsTest do
     end
   end
 
+  describe "withdraw/2" do
+    test "updates the user's deposit" do
+      user = user_fixture(%{deposit: 5})
+      assert {:ok, 0} = Accounts.withdraw_deposit(user.id, 5)
+      assert 0 == Repo.get!(User, user.id).deposit
+    end
+
+    test "returns an error if the given amount is too high" do
+      user = user_fixture(%{deposit: 0})
+      assert {:error, :insufficient_deposit} = Accounts.withdraw_deposit(user.id, 1)
+      assert 0 == Repo.get!(User, user.id).deposit
+    end
+
+    test "returns an error if the given amount is negative" do
+      user = user_fixture(%{deposit: 0})
+      assert {:error, :invalid_amount} = Accounts.withdraw_deposit(user.id, -1)
+      assert 0 == Repo.get!(User, user.id).deposit
+    end
+  end
+
   describe "update_user_username/3" do
     setup do
       user = user_fixture()
